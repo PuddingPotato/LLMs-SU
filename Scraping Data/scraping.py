@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import ast
 import time
 from datetime import datetime
 import re
@@ -45,7 +46,7 @@ all_data = pd.DataFrame(columns=[
 
 def select_filters(year, semester):
 
-    print('processing')
+    logger.info('Proceed with scraping!')
     logger.info(f"Filtering for year {year} semester {semester}")
     
     try:
@@ -142,7 +143,6 @@ def split_groups_with_embedded_label(data):
     groups = []
     current_group = []
     counter = 1 
-    print(f'split_groups_with_embedded_label(data): {data}')
     for item in data:
         if 'อาจารย์:' in item[0] and current_group: 
 
@@ -176,11 +176,49 @@ def remove_eng(text):
     
     return cleaned
 
+def thai_char(text):
+    thai_text = re.sub(r'[^\u0E00-\u0E7F\s]', '', text)
+    return thai_text.strip()
+
+def clean_teaching_type(details):
+    details = re.sub(r'ประเภทการสอน : C', 'ประเภทการสอน: Lecture(ทฤษฏี)', details)
+    details = re.sub(r'ประเภทการสอน : T', 'ประเภทการสอน: Tue(ติวแนวข้อสอบ)', details)
+    details = re.sub(r'ประเภทการสอน : L', 'ประเภทการสอน: Lab(ปฏิบัติ)', details)
+    return details
+
+def clean_subject_type(details):
+    details = re.sub(r'\bบ\.', 'วิชาบังคับของสาขา', str(details))
+    details = re.sub(r'\bล\.','วิชาเลือกของสาขา',str(details))
+    details = re.sub(r'\bบล\.','วิชาบังคับเลือกของสาขา',str(details))
+    return details 
+
+def comma_format(details):
+    details = re.sub(r' ,',' , ', str(details))
+    return details
+
+def clean_conditions(condition_list):
+    if isinstance(condition_list, str):
+        try:
+            condition_list = ast.literal_eval(condition_list)
+        except (SyntaxError, ValueError):
+            return condition_list
+    
+    seen = set()
+    cleaned_conditions = []
+
+    for item in condition_list:
+        code = item.replace("หรือ", "").replace("และ", "")
+        if code not in seen:
+            seen.add(code)
+            if ("หรือ" in item or "และ" in item) or (code not in cleaned_conditions):
+                cleaned_conditions.append(item)
+
+    return cleaned_conditions
 
 def details(course_link, year, semester):
     global all_data
     try:
-        link_web = f'https://reg2.su.ac.th/registrar/{course_link}'
+        link_web = f'https://reg.su.ac.th/registrar/{course_link}'
         driver.get(link_web)
         time.sleep(3)
         page_source = driver.page_source
@@ -203,7 +241,6 @@ def details(course_link, year, semester):
             if len(data) == 14:
                 schedule_detail = [data[1],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],data[12],data[13]]
                 schedule_data.append(schedule_detail)
-                print(f'schedule_detail: {schedule_detail}')
                 cleaned_data = []
                 current_group = None
                 for row in schedule_data:
@@ -213,7 +250,6 @@ def details(course_link, year, semester):
                         cleaned_data.append([current_group, row[1], row[2],row[3],row[4],row[5]])
             elif len(data) == 5:
                 course_informations = [data[3],data[4]]
-                print(f'course_informations: {course_informations}')
                 prof_name.append(course_informations)
 
         descriptions = soup.find_all('td',class_='normalDetail')
@@ -221,9 +257,7 @@ def details(course_link, year, semester):
         thai_text = [remove_eng(text) for text in text_descriptions]
 
         group_splitted = split_groups_with_embedded_label(prof_name)
-        print(f'group_data {group_splitted}')
         grouped_data = transform_group_data(group_splitted)
-        print(f'grouped_data {grouped_data}')
 
         grouped_schedule = {}
         for entry in cleaned_data:
@@ -252,7 +286,7 @@ def details(course_link, year, semester):
                             subjects.append(href)
 
         subjects = list(dict.fromkeys(subjects))
-        print("รายวิชา:", subjects)
+        print("Subject:", subjects)
 
         data_container = []
         for group, details in grouped_schedule.items():
@@ -285,7 +319,7 @@ def details(course_link, year, semester):
 def scrape_course_data(year, semester):
     global all_data
     try:
-        base_url = "https://reg3.su.ac.th/registrar/"
+        base_url = "https://reg.su.ac.th/registrar/"
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
         course = soup.find_all('tr', class_='normalDetail')
@@ -293,7 +327,7 @@ def scrape_course_data(year, semester):
         for i in range(len(course)):
             td_tags = course[i].find_all('td', string=lambda text: text and text.strip() == "W")
             if td_tags:
-                print(f"พบ W ในแถวที่ {i}:", [td.get_text(strip=True) for td in td_tags])
+                # print(f"พบ W ในแถวที่ {i}:", [td.get_text(strip=True) for td in td_tags])
 
                 course_info = course[i].find('a')
                 if course_info:
@@ -301,7 +335,7 @@ def scrape_course_data(year, semester):
                     course_id = course_info.text
 
                     if course_id in all_data['รหัสวิชา'].unique():
-                        print(f"Found Duplicated Course ID: {course_id}, Skipped..")
+                        print(f"Found Duplicated Course ID: {course_id}, Skipping...")
                         pass
                     else:
                         details(course_link, year, semester)
@@ -313,11 +347,12 @@ def scrape_course_data(year, semester):
                     Data.to_csv('Status.csv',index = False,encoding = 'utf-8-sig')
 
                 else:
-                    print(f"Link มีสถานะเป็น C ในช่อง : {i}")
+                    # print(f"Link มีสถานะเป็น C ในช่อง : {i}")
+                    pass
         
             if course_id in all_data['รหัสวิชา'].unique():
-                    print(f"Found Duplicated Course ID: {course_id}, Skipped..")
-                    pass
+                print(f"Found Duplicated Course ID: {course_id}. Skipping...")
+                pass
             else:
                 details(course_link, year, semester)
                 print(f'Course ID: {course_id}')
@@ -327,11 +362,10 @@ def scrape_course_data(year, semester):
         if next_page:
             link_tadpai = next_page.get('href')
             next_link = urllib.parse.urljoin(base_url, link_tadpai)
-            print(next_link)
             driver.get(next_link)
             scrape_course_data(year, semester)
         else:
-            print("ไม่พบหน้าต่อไป, ข้าม..")
+            print("The next page was not found. Skipping...")
     except Exception as e:
         logger.error(f"Error during scraping: {e}")
         return []
@@ -345,27 +379,24 @@ def filter_item(main_url, year, semester):
             if driver.current_url != main_url:
                 logger.info(f'Forwarding to {driver.current_url}')
                 scrape_course_data(year, semester)
-
                 break
             
             elif retry == retry_limit - 1:
-                print('timed out')
-                return []
+                logger.error('Max retries reached.')
+                break
             
             else:
-                print(f'{retry}/{retry_limit} Access denied, retrying')
+                logger.error(f'{retry}/{retry_limit} Access denied. Retrying...')
 
 if __name__ == '__main__':
-    url_registration = 'https://reg2.su.ac.th/registrar/class_info.asp?avs924956177=1'
+    url_registration = 'https://reg.su.ac.th/registrar/class_info.asp?avs924956177=1'
 
     current_year = [datetime.now().year + 543, datetime.now().year + 542]
-    semester = [1,2,3]
 
     for year in current_year:
-        for semester in semester:
-            
+        for semester in range(1, 4):
             if len(all_data) == 0 and semester == 2:
-                print(f'Data not found on year {year}, Running previous year instead.')
+                logger.error(f'Data not found on year {year}, Searching on previous year instead.')
                 break
 
             driver.get(url_registration)
