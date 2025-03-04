@@ -1,0 +1,9 @@
+ECHO is on.
+
+# Env
+LangChain
+Scraping Data/Selenium
+__pycache__
+.gradio
+.vscode
+discord
