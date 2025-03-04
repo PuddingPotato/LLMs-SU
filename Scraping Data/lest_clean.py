@@ -7,17 +7,17 @@ data = pd.read_csv(file_path)
 
 data.head()
 
-def thai(text):
+def only_thai(text):
     thai_text = re.sub(r'[^\u0E00-\u0E7F\s]', '', text)
     return thai_text.strip()
 
-def typess(details):
+def replace_type(details):
     details = re.sub(r'ประเภทการสอน : C', 'ประเภทการสอน: Lecture(ทฤษฏี)', details)
     details = re.sub(r'ประเภทการสอน : T', 'ประเภทการสอน: Tue(ติวแนวข้อสอบ)', details)
     details = re.sub(r'ประเภทการสอน : L', 'ประเภทการสอน: Lab(ปฏิบัติ)', details)
     return details
 
-def typess2(details):
+def replace_condition(details):
     details = re.sub(r'\bบ\.', 'วิชาบังคับของสาขา', str(details))
     details = re.sub(r'\bล\.','วิชาเลือกของสาขา',str(details))
     details = re.sub(r'\bบล\.','วิชาบังคับเลือกของสาขา',str(details))
@@ -47,9 +47,9 @@ def clean_conditions(condition_list):
     return cleaned_conditions
 
 data["เงื่อนไขรายวิชา"] = data["เงื่อนไขรายวิชา"].apply(clean_conditions)
-data['หมายเหตุ'] = data['หมายเหตุ'].apply(typess2)
-data['รายละเอียดวิชา'] = data['รายละเอียดวิชา'].apply(thai)
-data['รายละเอียดวัน-เวลา-ห้องเรียน-อาคาร-ประเภทการสอน'] = data['รายละเอียดวัน-เวลา-ห้องเรียน-อาคาร-ประเภทการสอน'].apply(typess)
+data['หมายเหตุ'] = data['หมายเหตุ'].apply(replace_condition)
+data['รายละเอียดวิชา'] = data['รายละเอียดวิชา'].apply(only_thai)
+data['รายละเอียดวัน-เวลา-ห้องเรียน-อาคาร-ประเภทการสอน'] = data['รายละเอียดวัน-เวลา-ห้องเรียน-อาคาร-ประเภทการสอน'].apply(replace_type)
 cleaned_file_path = 'Data_2567_update.csv'
 data.to_csv(cleaned_file_path, index=False,encoding="utf-8-sig")
 
