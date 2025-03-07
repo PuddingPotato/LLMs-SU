@@ -340,11 +340,11 @@ def scrape_course_data(year, semester):
                     else:
                         details(course_link, year, semester)
                         print(f'Course ID: {course_id}')
-                        all_data.to_csv(f'Data_{year}.csv',index=False, encoding='utf-8-sig')
+                        all_data.to_csv(f'data\scicourses_{year}.csv',index=False, encoding='utf-8-sig')
                     data_list.append({'Id': course_id, 'Link': course_link, 'Status': td_tags})
 
                     Data = pd.DataFrame(data_list)
-                    Data.to_csv('Status.csv',index = False,encoding = 'utf-8-sig')
+                    Data.to_csv('data\items.csv',index = False,encoding = 'utf-8-sig')
 
                 else:
                     # print(f"Link มีสถานะเป็น C ในช่อง : {i}")
@@ -356,7 +356,7 @@ def scrape_course_data(year, semester):
             else:
                 details(course_link, year, semester)
                 print(f'Course ID: {course_id}')
-                all_data.to_csv(f'Data_{year}.csv',index=False, encoding='utf-8-sig')
+                all_data.to_csv(fr'data\scicourses_{year}.csv',index=False, encoding='utf-8-sig')
 
         next_page = soup.find('a', string='[หน้าต่อไป]')
         if next_page:
