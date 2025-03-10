@@ -20,7 +20,7 @@ def create_chroma_vectorstore():
 
     # Create vector store
     vectorstore = Chroma.from_documents(documents = docs,
-                                        persist_directory = r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\chroma_vector",
+                                        persist_directory = r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\chroma_index",
                                         embedding = embedding_model)
     
     os.system('cls')
@@ -44,7 +44,7 @@ def create_faiss_vectorstore():
 
     # Create vector store
     vectorstore = FAISS.from_documents(documents = docs, embedding = embedding_model)
-    vectorstore.save_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_vector")
+    vectorstore.save_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index")
 
     os.system('cls')
     print('Vector Store Created.')
