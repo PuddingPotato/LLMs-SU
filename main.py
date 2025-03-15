@@ -13,14 +13,13 @@ import time, json
 import qrcode
 from pythainlp.util import normalize
 import os
-import tqdm
 
 from chat_history import ChatHistory
 from preprocess.create_vectorstores import create_faiss_vectorstore
 
 def build_retriever_chain(model):
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a male Student Assistant named llama3B. \nUse the following contexts to answer the question. \nIgnore your own knowledge. \nContext:{context}"),
+        ("system", "You are a male Student Assistant named Potato. \nUse the following contexts to answer the question. \nIgnore your own knowledge. \nContext:{context}"),
         ('human', "{input}")
     ])
 
@@ -28,7 +27,7 @@ def build_retriever_chain(model):
         llm = model,
         prompt = prompt
     )
-    
+
     retriever = vectorstore.as_retriever()
 
     retriever_chain = create_retrieval_chain(
