@@ -1,3 +1,4 @@
+print('Loading tools')
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama.llms import OllamaLLM
@@ -14,7 +15,7 @@ import qrcode
 from pythainlp.util import normalize
 import os
 
-from chat_history import ChatHistory
+# from chat_history import ChatHistory
 from preprocess.create_vectorstores import create_faiss_vectorstore
 
 def build_retriever_chain(model):
@@ -157,12 +158,11 @@ def ask_question(model, query): # history_awareness, username,
 
 
 if __name__ == "__main__":
-    
     #Load Chat History Data
-    with open(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\user_chat_history.json', 'r', encoding='utf-8') as f:
-        chat_data = json.load(f)
+    # with open(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\user_chat_history.json', 'r', encoding='utf-8') as f:
+    #     chat_data = json.load(f)
 
-    history = ChatHistory(chat_data)
+    # history = ChatHistory(chat_data)
 
     # Load Embedding Model
     embedding_model = HuggingFaceEmbeddings(model_name = "sentence-transformers/all-MiniLM-L6-v2")
