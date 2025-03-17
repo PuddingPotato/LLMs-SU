@@ -1,5 +1,4 @@
 import json
-import discord.responses
 
 class ChatHistory():
     def __init__(self, history_data=None):
