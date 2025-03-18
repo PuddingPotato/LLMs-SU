@@ -46,7 +46,7 @@ def ask_question(model, query): # history_awareness, username,
     normalized_query = normalize(query)
     # print("Questioner:", username)
     if model == 'LLaMA 3.3 70B':
-        print('Selected LLaMA 3.2 3B')
+        print('Selected LLaMA 3.3 70B')
         model = nimllama33_70
 
     elif model == 'TYPHOON AI 2 70B':
@@ -56,14 +56,11 @@ def ask_question(model, query): # history_awareness, username,
     else:
         print("Please select the model.")
 
-
-    print('Asking without history.')
     retriever_chain = build_retriever_chain(model)
     response = retriever_chain.invoke({"input": normalized_query})
 
     print('Normalized_Question:', normalized_query)
     print("Answer:", response["answer"])
-    print(f"{len(response['answer'])} tokens used.")
 
     endtime = time.time()
     timespend = endtime - starttime
