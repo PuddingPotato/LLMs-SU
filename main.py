@@ -1,27 +1,20 @@
 from dotenv import load_dotenv
+import gradio as gr
+import time
+import qrcode
+import os
+
+from pythainlp.util import normalize
+
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
-import gradio as gr
-import time
-import qrcode
-from pythainlp.util import normalize
-import os
-from sentence_transformers import SentenceTransformer
+
 from preprocess.create_vectorstores import create_faiss_vectorstore
-
-load_dotenv(dotenv_path = r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\.env')
-nvidia_api_key = os.getenv('NVIDIA_API_KEY')
-typhoon_ai_api_key = os.getenv('TYPHOON_AI_API_KEY')
-langsmith_api_key = os.getenv('LANGSMITH_API_KEY')
-
-os.environ['LANGCHAIN_API_KEY'] = langsmith_api_key
-os.environ['LANGCHAIN_TRACING_V2'] = 'true'
-os.environ['LANGCHAIN_PROJECT'] = 'Junior-Onboarding'
 
 def build_retriever_chain(model):
     prompt = ChatPromptTemplate.from_messages([
@@ -34,7 +27,7 @@ def build_retriever_chain(model):
         prompt = prompt
     )
 
-    retriever = vectorstore.as_retriever(search_kwargs = {'k': 10})
+    retriever = vectorstore.as_retriever()
 
     retriever_chain = create_retrieval_chain(
         retriever = retriever,
@@ -84,22 +77,20 @@ def ask_question(model, query): # history_awareness, username,
 
 
 if __name__ == "__main__":
-    # Load Embedding Model
-    model_name = "kornwtp/simcse-model-phayathaibert"# "sentence-transformers/all-MiniLM-L6-v2"
-    local_path = r"C:\Users\User\Desktop\Project LLMs\Embedding Models"
-    if len(os.listdir(local_path)) == 0:
-        model = SentenceTransformer(model_name)
-        model.save(local_path)
+    load_dotenv(dotenv_path = r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\.env')
+    nvidia_api_key = os.getenv('NVIDIA_API_KEY')
+    typhoon_ai_api_key = os.getenv('TYPHOON_AI_API_KEY')
+    langsmith_api_key = os.getenv('LANGSMITH_API_KEY')
+    cohere_api_key = os.getenv('COHERE_API_KEY')
 
-        print("Model downloaded and saved to:", local_path)
-        embedding_model = HuggingFaceEmbeddings(model_name = model_name)
-        print('Embedding Model Loaded.')
-        
-    else:
-        embedding_model = HuggingFaceEmbeddings(model_name = local_path)
-        print('Embedding Model Loaded.')
-        
+    os.environ['LANGCHAIN_API_KEY'] = langsmith_api_key
+    os.environ['LANGCHAIN_TRACING_V2'] = 'true'
+    os.environ['LANGCHAIN_PROJECT'] = 'Junior-Onboarding'
 
+    embedding_model = CohereEmbeddings(model="embed-english-v3.0",
+                                           cohere_api_key = cohere_api_key)
+    print('Embedding Model Loaded.')
+    
     # Load Vector store
     print('Searching for vectors..')
     time.sleep(1)
@@ -107,7 +98,7 @@ if __name__ == "__main__":
     if len(os.listdir(path = r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore')) == 0:
         print('No vector found. Creating new one..')
         vectorstore = create_faiss_vectorstore()
-    vectorstore = FAISS.load_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index", embedding_model, allow_dangerous_deserialization = True)
+    vectorstore = FAISS.load_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index_cohere", embedding_model, allow_dangerous_deserialization = True)
     print('Vector Loaded.')
 
     # Load LLMs
@@ -146,4 +137,5 @@ if __name__ == "__main__":
         print('QR code generated.')
 
 while True:
+    time.sleep(100)
     pass
