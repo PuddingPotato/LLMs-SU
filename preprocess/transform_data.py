@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 import re
 
-data = pd.read_csv(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\Data_2567.csv')
+data = pd.read_csv(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\scicourses_2567.csv')
 
 def thai_char(text):
     thai_text = re.sub(r'[^\u0E00-\u0E7F\s]', '', text)
@@ -120,9 +120,7 @@ data['รายละเอียดวัน-เวลา-ห้องเรี
             ).apply(lambda y: sorted(y, key = lambda z: day_order[z.split(' _ ')[0].split(' : ')[1].strip()]))
 
 data["เงื่อนไขรายวิชา"] = data["เงื่อนไขรายวิชา"].apply(clean_conditions)
-data['เงื่อนไขรายวิชา'] = data['เงื่อนไขรายวิชา'].apply(
-    lambda x: ast.literal_eval(x)
-)
+
 
 data['หน่วยกิต'] = data['หน่วยกิต'].apply(
     lambda x: x.split('(')[0]

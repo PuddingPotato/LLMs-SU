@@ -64,12 +64,12 @@ def ask_question(model, query): # history_awareness, username,
     print('\n')
     # print(f'responses: {list(response['context'])[0].page_content}\n')
     related_docs = [doc.page_content for doc in list(response['context'])]
-    print(f'related_docs: {related_docs}', sep = '\n')
+    # print(f'related_docs: {related_docs}', sep = '\n')
     str_related_docs = ''
     for index, doc in enumerate(related_docs):
         str_related_docs += f'document {index + 1}: {doc}\n'
     str_related_docs = f'Total Related Documents: {len(related_docs)}\n' + str_related_docs
-    print('\nResponse:', response)
+    # print('\nResponse:', response)
     return response["answer"], str_related_docs
 
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     os.environ['LANGCHAIN_TRACING_V2'] = 'true'
     os.environ['LANGCHAIN_PROJECT'] = 'Junior-Onboarding'
 
-    embedding_model = CohereEmbeddings(model="embed-english-v3.0",
+    embedding_model = CohereEmbeddings(model="embed-multilingual-v3.0",
                                            cohere_api_key = cohere_api_key)
     print('Embedding Model Loaded.')
     
