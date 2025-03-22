@@ -14,7 +14,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 
-from preprocess.create_vectorstores import create_faiss_vectorstore
+from preprocess.create_vectorstores import create_faiss_vectorstore_cohere
 
 def build_retriever_chain(model):
     prompt = ChatPromptTemplate.from_messages([
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     if len(os.listdir(path = r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore')) == 0:
         print('No vector found. Creating new one..')
-        vectorstore = create_faiss_vectorstore()
+        vectorstore = create_faiss_vectorstore_cohere()
     vectorstore = FAISS.load_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index_cohere", embedding_model, allow_dangerous_deserialization = True)
     print('Vector Loaded.')
 

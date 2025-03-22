@@ -1,61 +1,49 @@
-from langchain.schema import Document
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
 import pandas as pd
 import os
 import time
+
+from langchain.schema import Document
+from langchain_community.vectorstores import FAISS
 from langchain_ollama import OllamaEmbeddings
 from langchain_cohere import CohereEmbeddings
 
-def create_chroma_vectorstore():
-    print('Creating Chroma vector store.')
-    print('Loading latest dataset.')
-    datasets = pd.read_csv(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\transformed_data_2567.csv')
 
-    docs = [Document(page_content=doc[0], metadata={'source': doc[1]}) for doc in datasets.values]
-
-    # Initialize embeddings model
-    print('Load Embedding Model.')
-    embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
-    print('Embedding Model Loaded.')
-
-    # Create vector store
-    vectorstore = Chroma.from_documents(documents = docs,
-                                        persist_directory = r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\chroma_index",
-                                        embedding = embedding_model)
-    
-    os.system('cls')
-    print('Vector Store Created.')
-    time.sleep(1)
-    
-    return vectorstore
-
-
-def create_faiss_vectorstore():
+def create_faiss_vectorstore_BGE_M3():
     print('Creating FAISS vector store.')
-    print('Loading latest dataset..')
     datasets = pd.read_csv(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\transformed_data_2567.csv')
-
+    
     docs = [Document(page_content=doc[0]) for doc in datasets.values]
-
     # Initialize embeddings model
     print('Load Embedding Model..')
     embedding_model = OllamaEmbeddings(model="bge-m3:latest")
     print('Embedding Model Loaded.')
-
-    # Create vector store
-    vectorstore = FAISS.from_documents(documents = docs, embedding = embedding_model)
-    vectorstore.save_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index")
-
-    os.system('cls')
-    print('Vector Store Created.')
+    
+    batch_size = 50
+    vectorstore = None
+    
+    for i in range(0, len(docs), batch_size):
+        print(f'Processing batch {i//batch_size + 1}/{len(docs)//batch_size + 1}')
+        batch_docs = docs[i:i+batch_size]
+        
+        # For the first batch, create the vectorstore
+        if vectorstore is None:
+            vectorstore = FAISS.from_documents(documents=batch_docs, embedding=embedding_model)
+        # For subsequent batches, add to the existing vectorstore
+        else:
+            vectorstore.add_documents(documents=batch_docs)
+    
+    # Save the vectorstore
+    vectorstore.save_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index_bge_m3")
     time.sleep(1)
-
+    os.system('cls')
+    print(f'Total documents processed: {len(docs)}')
+    print(f'Total documents in vectorstore: {vectorstore.index.ntotal}')
+    print('Vector Store Created.')
+    
     return vectorstore
 
-def create_faiss_vectorstore_from_embedding():
+def create_faiss_vectorstore_cohere():
     print('Creating FAISS vector store.')
     datasets = pd.read_csv(r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\transformed_data_2567.csv')
 
@@ -118,7 +106,7 @@ def create_faiss_vectorstore_from_embedding():
             print(f"Rate limiting pause: {sleep_time:.2f} seconds...")
             time.sleep(sleep_time)
     
-    vectorstore.save_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index_from_embedding")
+    vectorstore.save_local(r"C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\vectorstore\faiss_index_cohere")
 
     print('Vector Store Created.')
     print(f'Total documents processed: {docs_processed}')
@@ -131,4 +119,10 @@ def create_faiss_vectorstore_from_embedding():
 if __name__ == "__main__":
     load_dotenv(dotenv_path = r'C:\Users\User\Desktop\Project LLMs\RAG-LangChain\data\.env')
     cohere_api_key = os.getenv('COHERE_API_KEY')
-    vector = create_faiss_vectorstore_from_embedding()
+    option = str(input("Create\n1.FAISS using Cohere multilingual 3.0\n2.FAISS using BGE-M3\nChoose the option (1/2): "))
+    if option == '1':
+        vector = create_faiss_vectorstore_cohere()
+    elif option == '2':
+        vector = create_faiss_vectorstore_BGE_M3()
+    else:
+        print('Error. Please insert only the number (1 or 2).')
