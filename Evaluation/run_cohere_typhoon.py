@@ -53,7 +53,7 @@ for i, question in enumerate(test_questions):
     except Exception as e:
         print(f'Error on question {i+1}: {str(e)}')
         if 'rate limit' in str(e).lower():
-            wait_time = 15
+            wait_time = 20
             print(f"Rate limit hit. Waiting {wait_time} seconds...")
             time.sleep(wait_time)
             try:
@@ -65,3 +65,4 @@ for i, question in enumerate(test_questions):
                 print(f'Retry failed: {str(retry_error)}')
     
     print('-----------------------------------------------')
+    time.sleep(5)
