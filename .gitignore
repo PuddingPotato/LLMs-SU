@@ -8,3 +8,6 @@ __pycache__
 .vscode
 discord
 data/.env
+data/transformed_data_2567.csv
+data/scicourses_2567.csv
+data/items.csv
