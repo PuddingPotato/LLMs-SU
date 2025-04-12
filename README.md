@@ -5,13 +5,13 @@ A Retrieval-Augmented Generation (RAG)-based system for intelligent course recom
 This project implements a Retrieval-Augmented Generation (RAG) pipeline to support AI-driven course recommendation and study planning. The system connects multiple components—including data retrieval, embeddings, and large language models—using the LangChain framework, with LangSmith for model monitoring and evaluation.
 
 ##  Models Used
-Large Language Models (LLMs):
+**Large Language Models (LLMs):**
 
 - LLaMA 3.3 70B
 
 - TYPHOON AI 2 70B
 
-Embedding Models:
+**Embedding Models:**
 
 - Cohere Multilingual 3.0
 
@@ -20,13 +20,13 @@ Embedding Models:
 ##  Key Findings
 Cohere Multilingual 3.0 performs better than BGE M3 in retrieving relevant academic data.
 
-The best-performing combination:
+**The best-performing combination:**
 
 - Embedding: Cohere Multilingual 3.0
 
 - LLM: TYPHOON AI 2 70B
 
-Achieved precision = 0.825, demonstrating high-quality information filtering.
+**Achieved precision = 0.825, demonstrating high-quality information filtering.**
 
 ## Data Source
 - Course information was collected via web scraping using BeautifulSoup and Selenium.
@@ -36,9 +36,9 @@ Achieved precision = 0.825, demonstrating high-quality information filtering.
 - The dataset covers the latest academic year: 2567 (2024).
 
 ## Tech Stack
-- LangChain: Orchestrates retrieval, generation, and overall pipeline.
+- **LangChain:** Orchestrates retrieval, generation, and overall pipeline.
 
-- LangSmith: Used for monitoring, debugging, and tracking model performance.
+- **LangSmith:** Used for monitoring, debugging, and tracking model performance.
 
-- BeautifulSoup + Selenium: For scraping structured course data from university webpages.
+- **BeautifulSoup + Selenium:** For scraping structured course data from university webpages.
 
