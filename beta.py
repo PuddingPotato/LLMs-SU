@@ -1,3 +1,6 @@
+### This is beta version so its make a lot of error.
+
+
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama.llms import OllamaLLM
@@ -7,7 +10,6 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain.schema import Document
 import gradio as gr
 import time, json
 import qrcode
