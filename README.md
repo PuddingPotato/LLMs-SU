@@ -4,6 +4,7 @@ A Retrieval-Augmented Generation (RAG)-based system for intelligent course recom
 ---
 
 ##📌 **Overview**
+
 This project implements a Retrieval-Augmented Generation (RAG) pipeline to support AI-driven course recommendation and study planning. The system connects multiple components—including data retrieval, embeddings, and large language models—using the LangChain framework, with LangSmith for model monitoring and evaluation.
   
 ---
