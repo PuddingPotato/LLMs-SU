@@ -1,13 +1,11 @@
-ECHO is on.
-
 # Env
 LangChain
 Scraping Data/Selenium
 __pycache__
 .gradio
 .vscode
-discord
 data/.env
 data/transformed_data_2567.csv
 data/scicourses_2567.csv
 data/items.csv
+data/user_chat_history.json
