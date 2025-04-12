@@ -1,4 +1,4 @@
-# Development of an AI Model for Course Recommendation and Academic Planning in University Curriculums Using Large Language Models
+## Development of an AI Model for Course Recommendation and Academic Planning in University Curriculums Using Large Language Models
 A Retrieval-Augmented Generation (RAG)-based system for intelligent course recommendation and study planning using Large Language Models (LLMs), powered by LangChain.
 
 ##  Overview
@@ -11,7 +11,7 @@ Large Language Models (LLMs):
 
 - TYPHOON AI 2 70B
 
-# Embedding Models:
+Embedding Models:
 
 - Cohere Multilingual 3.0
 
